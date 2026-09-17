@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BSMS — Bike Showroom Management System</title>
+<meta name="description" content="A simple guide to installing and using BSMS — inventory, service, billing and accounts for your two-wheeler showroom." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #241a12;
+    --ink-soft: #5c5044;
+    --paper: #fbf7f2;
+    --card: #ffffff;
+    --line: #e9dfd2;
+    --amber: #e2711d;
+    --amber-ink: #7a3c0c;
+    --amber-tint: #fdf0e2;
+    --sidebar: #241a12;
+    --sidebar-ink: #f3ece2;
+    --good: #2f7a4f;
+    --good-tint: #e8f4ec;
+    --radius: 12px;
+    --shadow: 0 1px 2px rgba(36,26,18,0.04), 0 8px 24px -12px rgba(36,26,18,0.12);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Plus Jakarta Sans", -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  img, svg { max-width: 100%; }
+  a { color: var(--amber-ink); }
+  code, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+  /* ---- top nav ---- */
+  .topnav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(251,247,242,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topnav-inner {
+    max-width: 980px; margin: 0 auto; padding: 12px 20px;
+    display: flex; align-items: center; gap: 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 15px; letter-spacing: -0.01em; flex-shrink: 0; }
+  .brand-mark {
+    width: 28px; height: 28px; border-radius: 8px; background: var(--amber);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .navlinks { display: flex; gap: 4px; flex-wrap: wrap; font-size: 13px; overflow-x: auto; }
+  .navlinks a {
+    color: var(--ink-soft); text-decoration: none; padding: 7px 10px; border-radius: 8px; white-space: nowrap;
+    font-weight: 600;
+  }
+  .navlinks a:hover { background: var(--amber-tint); color: var(--amber-ink); }
+  .nav-cta {
+    margin-left: auto; flex-shrink: 0;
+    background: var(--amber); color: #fff; text-decoration: none;
+    padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* ---- hero ---- */
+  .hero { max-width: 980px; margin: 0 auto; padding: 56px 20px 40px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--amber-ink); background: var(--amber-tint); padding: 5px 11px; border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  h1.hero-title {
+    font-size: clamp(32px, 5vw, 46px); line-height: 1.08; letter-spacing: -0.02em;
+    margin: 0 0 16px; font-weight: 800; text-wrap: balance;
+  }
+  .hero-title .accent { color: var(--amber); }
+  .hero-sub { font-size: 17px; color: var(--ink-soft); max-width: 60ch; margin: 0 0 28px; text-wrap: balance; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 20px; border-radius: 10px; font-weight: 700; font-size: 14.5px; text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--amber); color: #fff; box-shadow: var(--shadow); }
+  .btn-primary:hover { background: #cf620f; }
+  .btn-ghost { background: var(--card); color: var(--ink); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--amber); color: var(--amber-ink); }
+  .hero-note { font-size: 13px; color: var(--ink-soft); margin-top: 14px; }
+
+  /* ---- layout ---- */
+  .section { max-width: 980px; margin: 0 auto; padding: 52px 20px; border-top: 1px solid var(--line); }
+  .section:first-of-type { border-top: none; }
+  .section-kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber-ink); margin: 0 0 10px; }
+  .section h2 { font-size: 27px; letter-spacing: -0.015em; margin: 0 0 12px; font-weight: 800; text-wrap: balance; }
+  .section > p.lead { font-size: 15.5px; color: var(--ink-soft); max-width: 68ch; margin: 0 0 30px; }
+
+  /* ---- cards / grid ---- */
+  .grid { display: grid; gap: 14px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow);
+  }
+  .card h3 { margin: 0 0 6px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 9px; }
+  .card p { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+  .card-icon {
+    width: 26px; height: 26px; border-radius: 7px; background: var(--amber-tint); color: var(--amber-ink);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .card-icon svg { width: 15px; height: 15px; }
+
+  /* ---- steps ---- */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 4px; }
+  .step { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    counter-increment: step; flex-shrink: 0;
+    width: 30px; height: 30px; border-radius: 999px; background: var(--sidebar); color: var(--sidebar-ink);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;
+  }
+  .step-num::before { content: counter(step); }
+  .step-body h4 { margin: 2px 0 5px; font-size: 14.5px; font-weight: 700; }
+  .step-body p { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+  .step-body code { background: var(--amber-tint); color: var(--amber-ink); padding: 1.5px 6px; border-radius: 5px; font-size: 12.5px; }
+
+  /* ---- os tabs ---- */
+  .os-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .os-tab {
+    padding: 8px 15px; border-radius: 999px; border: 1px solid var(--line); background: var(--card);
+    font-size: 13px; font-weight: 700; cursor: pointer; color: var(--ink-soft);
+  }
+  .os-tab[aria-selected="true"] { background: var(--sidebar); color: var(--sidebar-ink); border-color: var(--sidebar); }
+  .os-panel { display: none; }
+  .os-panel.active { display: block; }
+
+  /* ---- callout ---- */
+  .callout {
+    border-radius: var(--radius); padding: 16px 18px; font-size: 13.5px; display: flex; gap: 12px;
+    border: 1px solid var(--line); background: var(--card); margin: 22px 0;
+  }
+  .callout.warn { background: var(--amber-tint); border-color: #f0cfa8; color: var(--amber-ink); }
+  .callout.good { background: var(--good-tint); border-color: #bfe2cb; color: #235c3c; }
+  .callout svg { flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px; }
+
+  /* ---- day walkthrough ---- */
+  .timeline { border-left: 2px solid var(--line); margin-left: 6px; padding-left: 24px; display: flex; flex-direction: column; gap: 26px; }
+  .tl-item { position: relative; }
+  .tl-item::before {
+    content: ""; position: absolute; left: -29.5px; top: 3px;
+    width: 11px; height: 11px; border-radius: 999px; background: var(--amber); border: 2px solid var(--paper);
+  }
+  .tl-time { font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--amber-ink); margin-bottom: 4px; }
+  .tl-item h4 { margin: 0 0 5px; font-size: 15.5px; font-weight: 700; }
+  .tl-item p { margin: 0; font-size: 13.5px; color: var(--ink-soft); max-width: 62ch; }
+
+  /* ---- table ---- */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--card); }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--amber-tint); color: var(--amber-ink); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.mono, .kbd { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .kbd {
+    display: inline-block; background: var(--sidebar); color: var(--sidebar-ink);
+    padding: 2px 7px; border-radius: 5px; font-size: 12px; font-weight: 600;
+  }
+
+  /* ---- roles ---- */
+  .role-pill {
+    display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px;
+    background: var(--sidebar); color: var(--sidebar-ink); font-size: 11.5px; font-weight: 700; letter-spacing: 0.03em;
+  }
+
+  footer {
+    max-width: 980px; margin: 0 auto; padding: 40px 20px 60px; color: var(--ink-soft); font-size: 13px;
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--amber-ink); font-weight: 600; }
+
+  @media (max-width: 640px) {
+    .navlinks { display: none; }
+    .hero { padding-top: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#top" class="brand" style="text-decoration:none;">
+      <span class="brand-mark">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#241a12" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h3l3 6.5M12 17.5H9.5L7 10l3-3h4l1 3h3"/></svg>
+      </span>
+      <span>BSMS</span>
+    </a>
+    <div class="navlinks">
+      <a href="#install">Install</a>
+      <a href="#first-launch">First launch</a>
+      <a href="#capabilities">What it does</a>
+      <a href="#day">A day with BSMS</a>
+      <a href="#roles">Staff &amp; roles</a>
+      <a href="#shortcuts">Shortcuts</a>
+      <a href="#trial">Trial &amp; activation</a>
+      <a href="#backups">Backups</a>
+      <a href="#help">Help</a>
+    </div>
+    <a class="nav-cta" href="https://github.com/kvnh-dev/BSMS-releases/releases">Download</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <span class="hero-eyebrow">Bike Showroom Management System</span>
+  <h1 class="hero-title">Run your <span class="accent">two-wheeler showroom</span> from one simple app.</h1>
+  <p class="hero-sub">
+    Customers, bikes, service tickets, stock, GST billing, purchases and accounts — all in one place,
+    on your own computer. No internet connection needed once it's installed.
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="https://github.com/kvnh-dev/BSMS-releases/releases">
+      Download BSMS
+    </a>
+    <a class="btn btn-ghost" href="#install">See installation steps</a>
+  </div>
+  <p class="hero-note">Free 7-day trial included. Works on Mac and Windows.</p>
+</header>
+
+<section class="section" id="install">
+  <p class="section-kicker">Getting started</p>
+  <h2>Installing BSMS</h2>
+  <p class="lead">Download once, install like any other program. Pick your computer's type below.</p>
+
+  <div class="os-tabs" role="tablist">
+    <button class="os-tab" role="tab" aria-selected="true" data-os="mac">🍎 Mac</button>
+    <button class="os-tab" role="tab" aria-selected="false" data-os="win">🪟 Windows</button>
+  </div>
+
+  <div class="os-panel active" data-os-panel="mac">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <h4>Download the Mac version</h4>
+          <p>Go to the <a href="https://github.com/kvnh-dev/BSMS-releases/releases">Downloads page</a> and open the newest release at the top. Choose <code>mac-arm64</code> if your Mac is from 2020 or later (Apple Silicon / M-series), or <code>mac-x64</code> for an older Intel Mac. Not sure which? Click the Apple menu (the icon at the top-left corner of your screen) → About This Mac — it tells you.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <h4>Open the downloaded file and install</h4>
+          <p>Double-click the downloaded <code>.dmg</code> file, then drag the BSMS icon into the <strong>Applications</strong> folder shown.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <h4>Open BSMS for the first time</h4>
+          <p>Go to Applications and double-click BSMS. Since this app isn't yet registered with Apple, you'll see a warning the very first time — this is expected, not a virus. <strong>Right-click</strong> (or Control-click) the BSMS icon and choose <strong>Open</strong>, then confirm in the dialog that appears. Every time after this, it opens normally with a plain double-click.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="os-panel" data-os-panel="win">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <h4>Download the Windows version</h4>
+          <p>Go to the <a href="https://github.com/kvnh-dev/BSMS-releases/releases">Downloads page</a> and open the newest release at the top. Download the file ending in <code>windows-setup.exe</code>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <h4>Run the installer</h4>
+          <p>Double-click the downloaded file. Windows will show a blue "Windows protected your PC" screen — this is expected for a new app that isn't registered with Microsoft yet, not a virus warning. Click <strong>More info</strong>, then <strong>Run anyway</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <h4>Follow the setup steps</h4>
+          <p>The installer will ask where to install BSMS — the suggested location is fine, just click through. A shortcut will appear on your Desktop and Start Menu when it's done.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>BSMS isn't code-signed yet, which is why both operating systems show a warning on first install. This is normal — once you've opened it the one time as described above, it will never ask again.</span>
+  </div>
+</section>
+
+<section class="section" id="first-launch">
+  <p class="section-kicker">Getting started</p>
+  <h2>The first time you open it</h2>
+  <p class="lead">BSMS walks you through a short setup the very first time — after that, you just log in.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Tell it about your showroom</h4>
+        <p>Name, address, contact number, and your GST details (GSTIN, PAN, state). If you don't have your GST number handy right now, you can skip it and add it later from Settings — you just won't be able to bill GST invoices until it's filled in.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Pick your GST rates</h4>
+        <p>BSMS comes with the standard Indian GST rates ready to go (0%, 5%, 12%, 18%, 28%), with the usual two-wheeler rate pre-selected. You can add more rates later if you need them.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Create your own login</h4>
+        <p>Your name, phone number, and a password. This becomes the <strong>Owner</strong> account — the one with full access to everything, including adding other staff logins later.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout good">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span>This setup only happens once. Every time after this, opening BSMS takes you straight to a login screen — and everything you enter stays saved on this computer, even after updates.</span>
+  </div>
+</section>
+
+<section class="section" id="capabilities">
+  <p class="section-kicker">Overview</p>
+  <h2>What BSMS can do</h2>
+  <p class="lead">Everything a two-wheeler showroom needs day to day, organised into a few simple areas.</p>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Customers &amp; bikes</h3>
+      <p>Keep a record of every customer and the bikes they own. Find anyone in seconds by searching their name or phone number.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>Service tickets</h3>
+      <p>Track a bike from the moment it comes in — the complaint, the estimate, what parts and labour were actually used — right through to delivery.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Inventory &amp; stock</h3>
+      <p>Track exactly how much of every part you have, scan barcodes, and get warned automatically when something is running low.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg></span>Billing &amp; GST</h3>
+      <p>Create proper GST invoices with CGST/SGST calculated automatically. Accept part-payments and always know exactly who owes what.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Sale orders</h3>
+      <p>Take a booking or an advance order before the final sale — nothing affects your stock or GST numbers until it's actually converted into a bill.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.1-3-3L3 17.6"/></svg></span>Suppliers &amp; purchases</h3>
+      <p>Record what you buy from suppliers and what you've paid them. Your stock updates on its own as soon as a purchase bill is recorded.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Accounts &amp; ledger</h3>
+      <p>A simple, always-up-to-date running total of money in and out, plus a profit &amp; loss view — no accounting background needed.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-4.35-4.35"/><circle cx="11" cy="11" r="8"/></svg></span>Reports</h3>
+      <p>Daily business summaries, a list of who still owes you money, and GST reports ready for filing.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Staff, attendance &amp; roles</h3>
+      <p>Track who's working and when. Give each staff member their own login that only shows them what they need.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>Audit trail</h3>
+      <p>Every correction — a stock adjustment, a rewritten invoice, a cancelled payment — is logged with who did it and why, so nothing important gets lost.</p>
+    </div>
+    <div class="card">
+      <h3><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>Backup &amp; restore</h3>
+      <p>Download a complete copy of your data anytime, and restore it back in one click if you ever need to — see <a href="#backups">Backups</a> below.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="day">
+  <p class="section-kicker">In practice</p>
+  <h2>A typical day with BSMS</h2>
+  <p class="lead">The easiest way to understand what BSMS does is to see how a normal day actually flows through it.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-time">Morning</div>
+      <h4>Staff check in</h4>
+      <p>Each staff member checks in for the day. You can see at a glance who's in and correct anyone's timing yourself if needed.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">A customer drops off a bike</div>
+      <h4>Open a Service Ticket</h4>
+      <p>Note the bike, the customer, and what's wrong. Give them an estimate if they'd like one before work starts.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">In the workshop</div>
+      <h4>Technician does the work</h4>
+      <p>The technician records exactly which parts were used and what labour charges apply — this is what actually gets billed later, not the earlier estimate, so the customer is always charged for the real work done.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">Bike is ready</div>
+      <h4>Bill the customer</h4>
+      <p>The invoice is generated straight from the parts and labour actually recorded, with GST calculated for you. The customer pays by cash, UPI, card, or bank transfer — even a part-payment is tracked correctly.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">Meanwhile at the counter</div>
+      <h4>A walk-in buys a spare part</h4>
+      <p>Not every sale needs a service ticket — a standalone sale bills a customer directly and still updates stock and GST correctly.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">Bike goes home</div>
+      <h4>Mark it delivered</h4>
+      <p>The ticket is marked delivered, recording who handed the bike back and when.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">End of day</div>
+      <h4>Check the dashboard</h4>
+      <p>A quick look shows today's sales, what's still owed to you, and anything running low in stock — no digging required.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="roles">
+  <p class="section-kicker">Staff access</p>
+  <h2>Staff &amp; roles</h2>
+  <p class="lead">Every staff member gets their own login, and only sees the parts of BSMS relevant to their job. One person can hold more than one role — a working owner, for instance, typically has all of them.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Role</th><th>What they can do</th></tr></thead>
+      <tbody>
+        <tr><td><span class="role-pill">Owner</span></td><td>Everything — including adding staff, correcting mistakes, seeing all reports and accounts, and activating the license.</td></tr>
+        <tr><td><span class="role-pill">Technician</span></td><td>Works on service tickets and records the parts and labour actually used.</td></tr>
+        <tr><td><span class="role-pill">Cashier</span></td><td>Handles billing, standalone sales, purchases, and recording payments.</td></tr>
+        <tr><td><span class="role-pill">Delivery</span></td><td>Marks finished bikes as delivered to the customer.</td></tr>
+        <tr><td><span class="role-pill">Auditor</span></td><td>Read-only access to reports, accounts, and the audit trail — for an accountant or a trusted reviewer.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" id="shortcuts">
+  <p class="section-kicker">Working faster</p>
+  <h2>Keyboard shortcuts</h2>
+  <p class="lead">Entirely optional, but handy once you're used to BSMS — jump straight to a task without touching the mouse. The full list is also always available inside the app from the sidebar's "Keyboard Shortcuts" page.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Key</th><th>Jumps to</th></tr></thead>
+      <tbody>
+        <tr><td><span class="kbd">F4</span></td><td>New Service Ticket</td></tr>
+        <tr><td><span class="kbd">F5</span></td><td>Attendance</td></tr>
+        <tr><td><span class="kbd">F6</span></td><td>New Customer</td></tr>
+        <tr><td><span class="kbd">F7</span></td><td>New Inventory Item</td></tr>
+        <tr><td><span class="kbd">F8</span></td><td>New Invoice</td></tr>
+        <tr><td><span class="kbd">F9</span></td><td>New Bike</td></tr>
+        <tr><td><span class="kbd">F10</span></td><td>New Purchase Bill</td></tr>
+        <tr><td><span class="kbd">Ctrl+K</span> or <span class="kbd">Alt+G</span></td><td>"Go To" — search and jump anywhere</td></tr>
+        <tr><td><span class="kbd">Ctrl+M</span></td><td>Back to the Dashboard</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" id="trial">
+  <p class="section-kicker">Licensing</p>
+  <h2>Trial &amp; activation</h2>
+  <p class="lead">BSMS is free to try for 7 days from the moment you first open it — no card, no signup, nothing to enter up front.</p>
+
+  <div class="grid grid-3">
+    <div class="card">
+      <h3>During your trial</h3>
+      <p>A small banner at the top of the app shows how many days are left. Everything works normally — nothing is limited.</p>
+    </div>
+    <div class="card">
+      <h3>Activating</h3>
+      <p>Once you have an activation key, go to <strong>Settings → License</strong> and paste it in. You don't have to wait for the trial to run out.</p>
+    </div>
+    <div class="card">
+      <h3>If the trial runs out</h3>
+      <p>You'll see a simple "Activate BSMS" screen when you open the app. Paste your key there to continue — your data is completely safe and untouched the whole time.</p>
+    </div>
+  </div>
+
+  <div class="callout good" style="margin-top:22px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span>Being locked out never deletes anything. The moment a valid key is entered, you're straight back to exactly where you left off.</span>
+  </div>
+</section>
+
+<section class="section" id="backups">
+  <p class="section-kicker">Your data</p>
+  <h2>Backups — please read this one</h2>
+  <p class="lead">BSMS keeps all your data on this computer only — nothing is sent anywhere else. That's good for privacy and means it works with no internet connection, but it also means <strong>you're responsible for backing it up</strong>.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Download a backup regularly</h4>
+        <p>Go to <strong>Settings → Showroom Profile</strong> and click <strong>Download backup</strong>. This saves one file with your entire business — customers, bikes, tickets, invoices, everything.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Keep that file somewhere safe</h4>
+        <p>Copy it to a USB drive, email it to yourself, or upload it to Google Drive — anywhere other than only on this one computer.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Restoring, if you ever need to</h4>
+        <p>On the same screen, <strong>Restore from backup</strong> lets you load a backup file back in — useful if you move to a new computer or something goes wrong. This completely replaces whatever is currently in the app with the backup, so use it carefully.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>If this computer is ever lost, stolen, or badly damaged and you don't have a recent backup saved elsewhere, that data cannot be recovered. A backup taken once a week (or after a busy day) is enough for most showrooms.</span>
+  </div>
+</section>
+
+<section class="section" id="updates">
+  <p class="section-kicker">Staying current</p>
+  <h2>Updating to a new version</h2>
+  <p class="lead">
+    When a new version is available, download and install it from the
+    <a href="https://github.com/kvnh-dev/BSMS-releases/releases">Downloads page</a> exactly the same way you installed
+    the first time — it installs right over the existing app. Your data, your login, and your activation all carry
+    over automatically. No need to back up first, though it never hurts.
+  </p>
+</section>
+
+<section class="section" id="help">
+  <p class="section-kicker">Need a hand?</p>
+  <h2>Getting help</h2>
+  <p class="lead">If something isn't working the way you expect, or you'd like to activate BSMS, get in touch directly with whoever set BSMS up for you.</p>
+</section>
+
+<footer>
+  <p>BSMS — Bike Showroom Management System. Installers and this guide are published at
+    <a href="https://github.com/kvnh-dev/BSMS-releases">github.com/kvnh-dev/BSMS-releases</a>.</p>
+</footer>
+
+<script>
+  const tabs = document.querySelectorAll('.os-tab');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.setAttribute('aria-selected', 'false'));
+      tab.setAttribute('aria-selected', 'true');
+      document.querySelectorAll('.os-panel').forEach((p) => p.classList.remove('active'));
+      document.querySelector('[data-os-panel="' + tab.dataset.os + '"]').classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
